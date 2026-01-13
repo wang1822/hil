@@ -53,27 +53,6 @@ namespace HardwareSimulator.Converters
     }
 
     /// <summary>
-    /// 数值格式化转换器
-    /// </summary>
-    public class NumberFormatConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is double doubleValue)
-            {
-                string format = parameter as string ?? "F2";
-                return doubleValue.ToString(format);
-            }
-            return value?.ToString() ?? "0";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
     /// SOC百分比到进度条颜色转换器
     /// </summary>
     public class SocToColorConverter : IValueConverter
