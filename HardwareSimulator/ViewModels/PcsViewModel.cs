@@ -56,7 +56,7 @@ namespace HardwareSimulator.ViewModels
         {
             Data.WorkMode = SetWorkMode;
             Data.DcVoltage = SetDcVoltage;
-            Data.DcPower = SetDcVoltage * Data.DcCurrent / 1000;
+            Data.DcPower = SetPower;
         }
 
         /// <summary>
