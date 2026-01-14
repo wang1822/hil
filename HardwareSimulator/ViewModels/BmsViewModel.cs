@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using HardwareSimulator.Models;
 
 namespace HardwareSimulator.ViewModels
@@ -13,6 +14,47 @@ namespace HardwareSimulator.ViewModels
 
         [ObservableProperty]
         private bool _isSimulating;
+
+        /// <summary>
+        /// 设定的目标SOC (%)
+        /// </summary>
+        [ObservableProperty]
+        private double _setTargetSoc = 80;
+
+        /// <summary>
+        /// 设定的充电电流限制 (A)
+        /// </summary>
+        [ObservableProperty]
+        private double _setChargingCurrentLimit = 100;
+
+        /// <summary>
+        /// 设定的放电电流限制 (A)
+        /// </summary>
+        [ObservableProperty]
+        private double _setDischargingCurrentLimit = 100;
+
+        /// <summary>
+        /// 应用参数设置到设备
+        /// </summary>
+        [RelayCommand]
+        private void ApplySettings()
+        {
+            // 模拟将设置参数下发到BMS设备
+            // 在实际应用中，这里会通过通信协议发送到真实设备
+            // 这里我们设置目标SOC影响可用能量计算
+            Data.AvailableEnergy = Data.TotalEnergy * SetTargetSoc / 100;
+        }
+
+        /// <summary>
+        /// 从设备读取当前参数
+        /// </summary>
+        [RelayCommand]
+        private void ReadFromDevice()
+        {
+            SetTargetSoc = Data.Soc;
+            SetChargingCurrentLimit = Math.Abs(Data.TotalCurrent);
+            SetDischargingCurrentLimit = Math.Abs(Data.TotalCurrent);
+        }
 
         public string StatusText => Data.Status switch
         {

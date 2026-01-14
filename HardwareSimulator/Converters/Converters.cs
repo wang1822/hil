@@ -150,4 +150,28 @@ namespace HardwareSimulator.Converters
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// 枚举值转换器（用于ComboBox绑定枚举）
+    /// </summary>
+    public class EnumToIntConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Enum enumValue)
+            {
+                return System.Convert.ToInt32(enumValue);
+            }
+            return 0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int intValue && parameter is Type enumType)
+            {
+                return Enum.ToObject(enumType, intValue);
+            }
+            return Binding.DoNothing;
+        }
+    }
 }

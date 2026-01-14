@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using HardwareSimulator.Models;
 
 namespace HardwareSimulator.ViewModels
@@ -13,6 +14,61 @@ namespace HardwareSimulator.ViewModels
 
         [ObservableProperty]
         private bool _isSimulating;
+
+        /// <summary>
+        /// 设定的工作模式（用于参数下发）
+        /// </summary>
+        [ObservableProperty]
+        private PcsWorkMode _setWorkMode = PcsWorkMode.Discharging;
+
+        /// <summary>
+        /// 设定工作模式的索引（用于ComboBox绑定）
+        /// </summary>
+        public int SetWorkModeIndex
+        {
+            get => (int)SetWorkMode;
+            set
+            {
+                if (value >= 0 && value <= 4)
+                {
+                    SetWorkMode = (PcsWorkMode)value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 设定的直流电压目标值 (V)
+        /// </summary>
+        [ObservableProperty]
+        private double _setDcVoltage = 750;
+
+        /// <summary>
+        /// 设定的功率目标值 (kW)
+        /// </summary>
+        [ObservableProperty]
+        private double _setPower = 50;
+
+        /// <summary>
+        /// 应用参数设置到设备
+        /// </summary>
+        [RelayCommand]
+        private void ApplySettings()
+        {
+            Data.WorkMode = SetWorkMode;
+            Data.DcVoltage = SetDcVoltage;
+            Data.DcPower = SetPower;
+        }
+
+        /// <summary>
+        /// 从设备读取当前参数
+        /// </summary>
+        [RelayCommand]
+        private void ReadFromDevice()
+        {
+            SetWorkMode = Data.WorkMode;
+            SetDcVoltage = Data.DcVoltage;
+            SetPower = Data.DcPower;
+        }
 
         public string StatusText => Data.Status switch
         {

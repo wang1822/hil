@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using HardwareSimulator.Models;
 
 namespace HardwareSimulator.ViewModels
@@ -13,6 +14,84 @@ namespace HardwareSimulator.ViewModels
 
         [ObservableProperty]
         private bool _isSimulating;
+
+        /// <summary>
+        /// 设定温度值 (°C)
+        /// </summary>
+        [ObservableProperty]
+        private double _newSetTemperature = 25;
+
+        /// <summary>
+        /// 设定的运行模式
+        /// </summary>
+        [ObservableProperty]
+        private AcMode _setMode = AcMode.Cooling;
+
+        /// <summary>
+        /// 设定运行模式的索引（用于ComboBox绑定）
+        /// </summary>
+        public int SetModeIndex
+        {
+            get => (int)SetMode;
+            set
+            {
+                if (value >= 0 && value <= 4)
+                {
+                    SetMode = (AcMode)value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 设定的风速档位
+        /// </summary>
+        [ObservableProperty]
+        private FanSpeed _setFanSpeed = FanSpeed.Auto;
+
+        /// <summary>
+        /// 设定风速档位的索引（用于ComboBox绑定）
+        /// </summary>
+        public int SetFanSpeedIndex
+        {
+            get => (int)SetFanSpeed;
+            set
+            {
+                if (value >= 0 && value <= 3)
+                {
+                    SetFanSpeed = (FanSpeed)value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 设定的开关状态
+        /// </summary>
+        [ObservableProperty]
+        private bool _setPowerOn = true;
+
+        /// <summary>
+        /// 应用参数设置到设备
+        /// </summary>
+        [RelayCommand]
+        private void ApplySettings()
+        {
+            Data.SetTemperature = NewSetTemperature;
+            Data.Mode = SetMode;
+            Data.FanSpeedLevel = SetFanSpeed;
+            Data.Status = SetPowerOn ? AcStatus.Running : AcStatus.Off;
+        }
+
+        /// <summary>
+        /// 从设备读取当前参数
+        /// </summary>
+        [RelayCommand]
+        private void ReadFromDevice()
+        {
+            NewSetTemperature = Data.SetTemperature;
+            SetMode = Data.Mode;
+            SetFanSpeed = Data.FanSpeedLevel;
+            SetPowerOn = Data.Status == AcStatus.Running;
+        }
 
         public string StatusText => Data.Status switch
         {
