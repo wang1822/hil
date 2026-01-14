@@ -19,6 +19,8 @@
         <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
         <converters:SocToColorConverter x:Key="SocToColorConverter"/>
         <converters:TemperatureToColorConverter x:Key="TemperatureToColorConverter"/>
+        <converters:IndexToBoolConverter x:Key="IndexToBoolConverter"/>
+        <converters:IndexToVisibilityConverter x:Key="IndexToVisibilityConverter"/>
     </Window.Resources>
     
     <Grid>
@@ -69,16 +71,40 @@
         </Border>
         
         <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Tab Navigation -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                <StackPanel Orientation="Horizontal" Margin="10,0,10,0">
+                    <RadioButton Content="⚡ PCS 功率转换系统" 
+                                 Style="{StaticResource TabButtonStyle}"
+                                 IsChecked="{Binding SelectedModuleIndex, Converter={StaticResource IndexToBoolConverter}, ConverterParameter=0}"
+                                 Command="{Binding SelectModuleCommand}" CommandParameter="0"
+                                 GroupName="ModuleTabs"/>
+                    <RadioButton Content="🔋 BMS 电池管理系统" 
+                                 Style="{StaticResource TabButtonStyle}"
+                                 IsChecked="{Binding SelectedModuleIndex, Converter={StaticResource IndexToBoolConverter}, ConverterParameter=1}"
+                                 Command="{Binding SelectModuleCommand}" CommandParameter="1"
+                                 GroupName="ModuleTabs"/>
+                    <RadioButton Content="❄️ 空调系统" 
+                                 Style="{StaticResource TabButtonStyle}"
+                                 IsChecked="{Binding SelectedModuleIndex, Converter={StaticResource IndexToBoolConverter}, ConverterParameter=2}"
+                                 Command="{Binding SelectModuleCommand}" CommandParameter="2"
+                                 GroupName="ModuleTabs"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Module Panels -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Grid Margin="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
                 
                 <!-- PCS Panel -->
-                <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyle}" 
+                        Visibility="{Binding SelectedModuleIndex, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=0}">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -233,7 +259,8 @@
                 </Border>
                 
                 <!-- BMS Panel -->
-                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyle}" 
+                        Visibility="{Binding SelectedModuleIndex, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=1}">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -435,7 +462,8 @@
                 </Border>
                 
                 <!-- AC Panel -->
-                <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyle}" 
+                        Visibility="{Binding SelectedModuleIndex, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=2}">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -656,6 +684,7 @@
                 </Border>
             </Grid>
         </ScrollViewer>
+        </Grid>
         
         <!-- Footer -->
         <Border Grid.Row="2" Background="#37474F" Padding="15,10">
