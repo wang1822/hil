@@ -24,6 +24,9 @@ namespace HardwareSimulator.ViewModels
         private AirConditionerViewModel _acViewModel = new();
 
         [ObservableProperty]
+        private int _selectedModuleIndex = 0;
+
+        [ObservableProperty]
         private bool _isSimulating;
 
         [ObservableProperty]
@@ -144,6 +147,15 @@ namespace HardwareSimulator.ViewModels
             if (_timer != null && value >= 100)
             {
                 _timer.Interval = TimeSpan.FromMilliseconds(value);
+            }
+        }
+
+        [RelayCommand]
+        private void SelectModule(string moduleIndexStr)
+        {
+            if (int.TryParse(moduleIndexStr, out int moduleIndex) && moduleIndex >= 0 && moduleIndex <= 2)
+            {
+                SelectedModuleIndex = moduleIndex;
             }
         }
     }
