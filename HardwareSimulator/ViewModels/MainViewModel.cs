@@ -153,7 +153,7 @@ namespace HardwareSimulator.ViewModels
         [RelayCommand]
         private void SelectModule(string moduleIndexStr)
         {
-            if (int.TryParse(moduleIndexStr, out int moduleIndex))
+            if (int.TryParse(moduleIndexStr, out int moduleIndex) && moduleIndex >= 0 && moduleIndex <= 2)
             {
                 SelectedModuleIndex = moduleIndex;
             }

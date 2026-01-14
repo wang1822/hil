@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -13,9 +14,9 @@ namespace HardwareSimulator.Converters
         {
             if (value is bool boolValue)
             {
-                return boolValue ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                return boolValue ? Visibility.Visible : Visibility.Collapsed;
             }
-            return System.Windows.Visibility.Collapsed;
+            return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -139,9 +140,9 @@ namespace HardwareSimulator.Converters
         {
             if (value is int selectedIndex && parameter is string paramStr && int.TryParse(paramStr, out int targetIndex))
             {
-                return selectedIndex == targetIndex ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                return selectedIndex == targetIndex ? Visibility.Visible : Visibility.Collapsed;
             }
-            return System.Windows.Visibility.Collapsed;
+            return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
