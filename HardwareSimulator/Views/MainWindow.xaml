@@ -255,6 +255,54 @@
                                 </TextBlock>
                             </StackPanel>
                         </Grid>
+                        
+                        <!-- 参数设置区域 -->
+                        <TextBlock Text="📝 参数设置 (下发至设备)" FontWeight="SemiBold" Foreground="#E65100" Margin="0,20,0,10"/>
+                        <Border Background="#FFF3E0" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,5">
+                                    <TextBlock Text="设定工作模式" Style="{StaticResource LabelStyle}"/>
+                                    <ComboBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                              SelectedIndex="{Binding PcsViewModel.SetWorkModeIndex, Mode=TwoWay}">
+                                        <ComboBoxItem Content="充电"/>
+                                        <ComboBoxItem Content="放电"/>
+                                        <ComboBoxItem Content="空闲"/>
+                                        <ComboBoxItem Content="并网"/>
+                                        <ComboBoxItem Content="离网"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,5">
+                                    <TextBlock Text="设定直流电压 (V)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                             Text="{Binding PcsViewModel.SetDcVoltage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5">
+                                    <TextBlock Text="设定功率 (kW)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                             Text="{Binding PcsViewModel.SetPower, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,15,0,0">
+                                    <Button Content="📤 下发参数" Command="{Binding PcsViewModel.ApplySettingsCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}" Background="#FF5722" Margin="0,0,10,0"/>
+                                    <Button Content="📥 读取设备" Command="{Binding PcsViewModel.ReadFromDeviceCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}" Background="#2196F3"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
                     </StackPanel>
                 </Border>
                 
@@ -458,6 +506,47 @@
                                            Foreground="{Binding BmsViewModel.AlarmColor, Converter={StaticResource StringToBrushConverter}}"/>
                             </StackPanel>
                         </Grid>
+                        
+                        <!-- 参数设置区域 -->
+                        <TextBlock Text="📝 参数设置 (下发至设备)" FontWeight="SemiBold" Foreground="#E65100" Margin="0,20,0,10"/>
+                        <Border Background="#FFF3E0" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,5">
+                                    <TextBlock Text="目标SOC (%)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                             Text="{Binding BmsViewModel.SetTargetSoc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,5">
+                                    <TextBlock Text="充电电流限制 (A)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                             Text="{Binding BmsViewModel.SetChargingCurrentLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5">
+                                    <TextBlock Text="放电电流限制 (A)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                             Text="{Binding BmsViewModel.SetDischargingCurrentLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,15,0,0">
+                                    <Button Content="📤 下发参数" Command="{Binding BmsViewModel.ApplySettingsCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}" Background="#FF5722" Margin="0,0,10,0"/>
+                                    <Button Content="📥 读取设备" Command="{Binding BmsViewModel.ReadFromDeviceCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}" Background="#2196F3"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
                     </StackPanel>
                 </Border>
                 
@@ -680,6 +769,65 @@
                                 </TextBlock>
                             </StackPanel>
                         </Grid>
+                        
+                        <!-- 参数设置区域 -->
+                        <TextBlock Text="📝 参数设置 (下发至设备)" FontWeight="SemiBold" Foreground="#E65100" Margin="0,20,0,10"/>
+                        <Border Background="#FFF3E0" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,5">
+                                    <TextBlock Text="设定温度 (°C)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                             Text="{Binding AcViewModel.NewSetTemperature, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,5">
+                                    <TextBlock Text="运行模式" Style="{StaticResource LabelStyle}"/>
+                                    <ComboBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                              SelectedIndex="{Binding AcViewModel.SetModeIndex, Mode=TwoWay}">
+                                        <ComboBoxItem Content="制冷"/>
+                                        <ComboBoxItem Content="制热"/>
+                                        <ComboBoxItem Content="除湿"/>
+                                        <ComboBoxItem Content="通风"/>
+                                        <ComboBoxItem Content="自动"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5">
+                                    <TextBlock Text="风速档位" Style="{StaticResource LabelStyle}"/>
+                                    <ComboBox Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"
+                                              SelectedIndex="{Binding AcViewModel.SetFanSpeedIndex, Mode=TwoWay}">
+                                        <ComboBoxItem Content="低速"/>
+                                        <ComboBoxItem Content="中速"/>
+                                        <ComboBoxItem Content="高速"/>
+                                        <ComboBoxItem Content="自动"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,5">
+                                    <TextBlock Text="开关状态" Style="{StaticResource LabelStyle}"/>
+                                    <CheckBox Content="开机" IsChecked="{Binding AcViewModel.SetPowerOn, Mode=TwoWay}" 
+                                              Margin="0,5,0,0" VerticalContentAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,15,0,0">
+                                    <Button Content="📤 下发参数" Command="{Binding AcViewModel.ApplySettingsCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}" Background="#FF5722" Margin="0,0,10,0"/>
+                                    <Button Content="📥 读取设备" Command="{Binding AcViewModel.ReadFromDeviceCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}" Background="#2196F3"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
                     </StackPanel>
                 </Border>
             </Grid>
