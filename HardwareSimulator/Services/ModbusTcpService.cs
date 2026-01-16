@@ -253,15 +253,30 @@ namespace HardwareSimulator.Services
 
         /// <summary>
         /// 将浮点数转换为两个16位寄存器
+        /// 使用 IEEE 754 标准，并确保大端字节序（Modbus标准）
         /// </summary>
         private ushort[] ConvertFloatToRegisters(float value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
-            return new ushort[]
+            
+            // Modbus 使用大端字节序，而 .NET 通常使用小端字节序
+            // 如果系统是小端序，需要按照 Modbus 标准调整字节顺序
+            if (BitConverter.IsLittleEndian)
             {
-                BitConverter.ToUInt16(bytes, 0),
-                BitConverter.ToUInt16(bytes, 2)
-            };
+                return new ushort[]
+                {
+                    BitConverter.ToUInt16(bytes, 2),  // 高位字
+                    BitConverter.ToUInt16(bytes, 0)   // 低位字
+                };
+            }
+            else
+            {
+                return new ushort[]
+                {
+                    BitConverter.ToUInt16(bytes, 0),
+                    BitConverter.ToUInt16(bytes, 2)
+                };
+            }
         }
 
         /// <summary>

@@ -11,6 +11,8 @@ namespace HardwareSimulator.ViewModels
     /// </summary>
     public partial class MainViewModel : ObservableObject
     {
+        private const int MinIntervalMs = 100; // 最小更新间隔（毫秒）
+        
         private readonly DataSimulationService _simulationService;
         private readonly ModbusTcpService _modbusTcpService;
         private readonly DispatcherTimer _timer;
@@ -140,9 +142,11 @@ namespace HardwareSimulator.ViewModels
                         retryCount++;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     retryCount++;
+                    // 记录异常信息用于调试（在生产环境应使用日志系统）
+                    System.Diagnostics.Debug.WriteLine($"数据发送失败: {ex.Message}");
                 }
             }
 
@@ -233,7 +237,7 @@ namespace HardwareSimulator.ViewModels
         [RelayCommand]
         private void SetUpdateInterval(string intervalStr)
         {
-            if (int.TryParse(intervalStr, out int interval) && interval >= 100)
+            if (int.TryParse(intervalStr, out int interval) && interval >= MinIntervalMs)
             {
                 UpdateInterval = interval;
                 _timer.Interval = TimeSpan.FromMilliseconds(UpdateInterval);
@@ -242,7 +246,7 @@ namespace HardwareSimulator.ViewModels
 
         partial void OnUpdateIntervalChanged(int value)
         {
-            if (_timer != null && value >= 100)
+            if (_timer != null && value >= MinIntervalMs)
             {
                 _timer.Interval = TimeSpan.FromMilliseconds(value);
             }
@@ -250,7 +254,7 @@ namespace HardwareSimulator.ViewModels
 
         partial void OnSendIntervalChanged(int value)
         {
-            if (_sendTimer != null && value >= 100)
+            if (_sendTimer != null && value >= MinIntervalMs)
             {
                 _sendTimer.Interval = TimeSpan.FromMilliseconds(value);
             }
