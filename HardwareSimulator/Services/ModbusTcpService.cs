@@ -68,8 +68,19 @@ namespace HardwareSimulator.Services
 
                 return false;
             }
-            catch (Exception)
+            catch (SocketException ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Socket 连接失败: {ex.Message}");
+                lock (_lockObject)
+                {
+                    _isConnected = false;
+                }
+                Dispose();
+                return false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"连接异常: {ex.Message}");
                 lock (_lockObject)
                 {
                     _isConnected = false;
@@ -128,8 +139,9 @@ namespace HardwareSimulator.Services
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"PCS 数据发送失败: {ex.Message}");
                 return false;
             }
         }
@@ -172,8 +184,9 @@ namespace HardwareSimulator.Services
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"BMS 数据发送失败: {ex.Message}");
                 return false;
             }
         }
@@ -222,8 +235,9 @@ namespace HardwareSimulator.Services
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"空调数据发送失败: {ex.Message}");
                 return false;
             }
         }
@@ -253,24 +267,32 @@ namespace HardwareSimulator.Services
 
         /// <summary>
         /// 将浮点数转换为两个16位寄存器
-        /// 使用 IEEE 754 标准，并确保大端字节序（Modbus标准）
+        /// 使用 IEEE 754 标准
+        /// Modbus 标准要求大端字节序（高字节在前）
+        /// 
+        /// 例如：浮点数 123.456 的 IEEE 754 表示为 4 个字节：
+        /// 在小端系统中：[B0, B1, B2, B3]
+        /// Modbus 要求：[B2, B3] 在第一个寄存器，[B0, B1] 在第二个寄存器
         /// </summary>
         private ushort[] ConvertFloatToRegisters(float value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
             
-            // Modbus 使用大端字节序，而 .NET 通常使用小端字节序
-            // 如果系统是小端序，需要按照 Modbus 标准调整字节顺序
+            // Modbus 使用大端字节序
+            // 如果系统是小端序（大多数系统），需要调整字节顺序
             if (BitConverter.IsLittleEndian)
             {
+                // 小端系统：bytes[0-3] = [LSB...MSB]
+                // 需要重新排列为 Modbus 大端格式
                 return new ushort[]
                 {
-                    BitConverter.ToUInt16(bytes, 2),  // 高位字
-                    BitConverter.ToUInt16(bytes, 0)   // 低位字
+                    BitConverter.ToUInt16(bytes, 2),  // 高位字（bytes[2-3]）
+                    BitConverter.ToUInt16(bytes, 0)   // 低位字（bytes[0-1]）
                 };
             }
             else
             {
+                // 大端系统：保持原顺序
                 return new ushort[]
                 {
                     BitConverter.ToUInt16(bytes, 0),

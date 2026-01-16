@@ -131,9 +131,11 @@ namespace HardwareSimulator.ViewModels
 
                     await Task.WhenAll(pcsTask, bmsTask, acTask);
 
-                    if (pcsTask.Result && bmsTask.Result && acTask.Result)
+                    // 检查所有任务是否成功完成
+                    success = await pcsTask && await bmsTask && await acTask;
+                    
+                    if (success)
                     {
-                        success = true;
                         SendSuccessCount++;
                         LastSendTime = DateTime.Now;
                     }
@@ -154,11 +156,20 @@ namespace HardwareSimulator.ViewModels
             {
                 SendFailureCount++;
                 // 连接失败，尝试重连
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(1000);
-                    await ConnectAsync();
-                });
+                _ = ReconnectAsync();
+            }
+        }
+
+        private async Task ReconnectAsync()
+        {
+            try
+            {
+                await Task.Delay(1000);
+                await ConnectAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"重连失败: {ex.Message}");
             }
         }
 
