@@ -11,8 +11,12 @@ namespace HardwareSimulator.ViewModels
     /// </summary>
     public partial class MainViewModel : ObservableObject
     {
+        private const int MinIntervalMs = 100; // 最小更新间隔（毫秒）
+        
         private readonly DataSimulationService _simulationService;
+        private readonly ModbusTcpService _modbusTcpService;
         private readonly DispatcherTimer _timer;
+        private readonly DispatcherTimer _sendTimer;
 
         [ObservableProperty]
         private PcsViewModel _pcsViewModel = new();
@@ -41,9 +45,47 @@ namespace HardwareSimulator.ViewModels
         [ObservableProperty]
         private int _updateCount;
 
+        // Modbus TCP 连接配置
+        [ObservableProperty]
+        private string _modbusIpAddress = "192.168.1.100";
+
+        [ObservableProperty]
+        private int _modbusPort = 502;
+
+        [ObservableProperty]
+        private byte _modbusSlaveId = 1;
+
+        [ObservableProperty]
+        private int _sendInterval = 1000;
+
+        [ObservableProperty]
+        private bool _isConnected;
+
+        [ObservableProperty]
+        private string _connectionStatusText = "未连接";
+
+        [ObservableProperty]
+        private string _connectionStatusColor = "#F44336";
+
+        [ObservableProperty]
+        private int _sendCount;
+
+        [ObservableProperty]
+        private int _sendSuccessCount;
+
+        [ObservableProperty]
+        private int _sendFailureCount;
+
+        [ObservableProperty]
+        private DateTime _lastSendTime;
+
+        [ObservableProperty]
+        private bool _autoSendEnabled;
+
         public MainViewModel()
         {
             _simulationService = new DataSimulationService();
+            _modbusTcpService = new ModbusTcpService();
             
             // 初始化数据
             _simulationService.InitializePcsData(PcsViewModel.Data);
@@ -57,7 +99,78 @@ namespace HardwareSimulator.ViewModels
             };
             _timer.Tick += Timer_Tick;
 
+            // 初始化数据发送定时器
+            _sendTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(SendInterval)
+            };
+            _sendTimer.Tick += SendTimer_Tick;
+
             LastUpdateTime = DateTime.Now;
+            LastSendTime = DateTime.Now;
+        }
+
+        private async void SendTimer_Tick(object? sender, EventArgs e)
+        {
+            if (!IsConnected || !AutoSendEnabled)
+                return;
+
+            SendCount++;
+
+            // 发送所有数据，失败时重试最多3次
+            int retryCount = 0;
+            bool success = false;
+
+            while (retryCount < 3 && !success)
+            {
+                try
+                {
+                    var pcsTask = _modbusTcpService.SendPcsDataAsync(PcsViewModel.Data, ModbusSlaveId);
+                    var bmsTask = _modbusTcpService.SendBmsDataAsync(BmsViewModel.Data, ModbusSlaveId);
+                    var acTask = _modbusTcpService.SendAcDataAsync(AcViewModel.Data, ModbusSlaveId);
+
+                    await Task.WhenAll(pcsTask, bmsTask, acTask);
+
+                    // 检查所有任务是否成功完成
+                    success = await pcsTask && await bmsTask && await acTask;
+                    
+                    if (success)
+                    {
+                        SendSuccessCount++;
+                        LastSendTime = DateTime.Now;
+                    }
+                    else
+                    {
+                        retryCount++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    retryCount++;
+                    // 记录异常信息用于调试（在生产环境应使用日志系统）
+                    System.Diagnostics.Debug.WriteLine($"数据发送失败: {ex.Message}");
+                }
+            }
+
+            if (!success)
+            {
+                SendFailureCount++;
+                // 连接失败，尝试重连
+                _ = ReconnectAsync();
+            }
+        }
+
+        private async Task ReconnectAsync()
+        {
+            try
+            {
+                await Task.Delay(1000);
+                await ConnectAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"重连失败: {ex.Message}");
+            }
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -135,7 +248,7 @@ namespace HardwareSimulator.ViewModels
         [RelayCommand]
         private void SetUpdateInterval(string intervalStr)
         {
-            if (int.TryParse(intervalStr, out int interval) && interval >= 100)
+            if (int.TryParse(intervalStr, out int interval) && interval >= MinIntervalMs)
             {
                 UpdateInterval = interval;
                 _timer.Interval = TimeSpan.FromMilliseconds(UpdateInterval);
@@ -144,19 +257,84 @@ namespace HardwareSimulator.ViewModels
 
         partial void OnUpdateIntervalChanged(int value)
         {
-            if (_timer != null && value >= 100)
+            if (_timer != null && value >= MinIntervalMs)
             {
                 _timer.Interval = TimeSpan.FromMilliseconds(value);
+            }
+        }
+
+        partial void OnSendIntervalChanged(int value)
+        {
+            if (_sendTimer != null && value >= MinIntervalMs)
+            {
+                _sendTimer.Interval = TimeSpan.FromMilliseconds(value);
             }
         }
 
         [RelayCommand]
         private void SelectModule(string moduleIndexStr)
         {
-            if (int.TryParse(moduleIndexStr, out int moduleIndex) && moduleIndex >= 0 && moduleIndex <= 2)
+            if (int.TryParse(moduleIndexStr, out int moduleIndex) && moduleIndex >= 0 && moduleIndex <= 3)
             {
                 SelectedModuleIndex = moduleIndex;
             }
+        }
+
+        [RelayCommand]
+        private async Task ConnectAsync()
+        {
+            if (IsConnected)
+            {
+                // 已连接，执行断开操作
+                DisconnectFromModbus();
+                return;
+            }
+
+            // 尝试连接
+            bool success = await _modbusTcpService.ConnectAsync(ModbusIpAddress, ModbusPort);
+
+            if (success)
+            {
+                IsConnected = true;
+                ConnectionStatusText = "已连接";
+                ConnectionStatusColor = "#4CAF50";
+
+                // 启动自动发送
+                if (!AutoSendEnabled)
+                {
+                    AutoSendEnabled = true;
+                    _sendTimer.Start();
+                }
+            }
+            else
+            {
+                IsConnected = false;
+                ConnectionStatusText = "连接失败";
+                ConnectionStatusColor = "#F44336";
+            }
+        }
+
+        [RelayCommand]
+        private void DisconnectFromModbus()
+        {
+            if (_sendTimer.IsEnabled)
+            {
+                _sendTimer.Stop();
+            }
+
+            AutoSendEnabled = false;
+            _modbusTcpService.Disconnect();
+            IsConnected = false;
+            ConnectionStatusText = "未连接";
+            ConnectionStatusColor = "#F44336";
+        }
+
+        [RelayCommand]
+        private void ResetSendStatistics()
+        {
+            SendCount = 0;
+            SendSuccessCount = 0;
+            SendFailureCount = 0;
         }
     }
 }
